@@ -6,6 +6,8 @@ import com.cartrawler.assessment.constants.CarSuppliersEnum;
 import com.cartrawler.assessment.utility.CarTrawlerUtility;
 import com.cartrawler.assessment.worker.SIPPCodeSortingWorker;
 
+import javax.xml.transform.Result;
+import java.sql.ResultSet;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -46,6 +48,9 @@ public class SortingServiceImpl implements SortingService {
 
                 for(CarGroupEnum carGroupEnum : CarGroupEnum.values()){
                     if(carGroupEnumListMap.containsKey(carGroupEnum)){
+                        List<CarResult> carResultList   =   carGroupEnumListMap.get(carGroupEnum);
+                        double median = CarTrawlerUtility.findMedianOfSortedArray(carResultList);
+                        carResultList.removeIf(e->e.getRentalCost() > median);
                         sortedResults.addAll(carGroupEnumListMap.get(carGroupEnum));
                     }
                 }

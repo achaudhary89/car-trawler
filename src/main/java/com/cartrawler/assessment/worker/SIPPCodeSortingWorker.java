@@ -5,8 +5,12 @@ import com.cartrawler.assessment.comparator.SIPPCodeComparator;
 import com.cartrawler.assessment.constants.CarGroupEnum;
 import com.cartrawler.assessment.utility.CarTrawlerUtility;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
+
 
 public class SIPPCodeSortingWorker implements Callable<List<Future>> {
 
