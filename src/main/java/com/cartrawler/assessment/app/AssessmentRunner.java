@@ -1,9 +1,17 @@
 package com.cartrawler.assessment.app;
 
+import com.cartrawler.assessment.comparator.SIPPCodeComparator;
+import com.cartrawler.assessment.constants.CarGroupEnum;
+import com.cartrawler.assessment.constants.CarSuppliersEnum;
 import com.cartrawler.assessment.car.CarResult;
+import com.cartrawler.assessment.service.SortingService;
+import com.cartrawler.assessment.service.SortingServiceImpl;
 import com.cartrawler.assessment.view.Display;
-import java.util.HashSet;
-import java.util.Set;
+import com.cartrawler.assessment.worker.SIPPCodeSortingWorker;
+
+import java.sql.ResultSet;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class AssessmentRunner {
     public static final Set<CarResult> CARS;;
@@ -320,8 +328,11 @@ public class AssessmentRunner {
         CARS.add(new CarResult("Citroen C1", "FLIZZR", "MBMR", 49.08d, CarResult.FuelPolicy.FULLFULL));
     }
 
+
     public static void main(String[] args) {
         Display display = new Display();
-        display.render(CARS);
-    }        
+        SortingService service = new SortingServiceImpl();
+        Set<CarResult> sortedCarResults = service.sort(CARS);
+        display.render(sortedCarResults);
+    }
 }
