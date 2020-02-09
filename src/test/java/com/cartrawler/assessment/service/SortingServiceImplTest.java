@@ -117,6 +117,21 @@ class SortingServiceImplTest {
         }
     }
 
+    @Test
+    void removePricesAboveMedianTest(){
+        CarResult carResult = new CarResult("Peugeot 107", "HERTZ", "EDMR", 167.98d, CarResult.FuelPolicy.FULLFULL);
+        CarResult carResult1 = new CarResult("Peugeo1t 107", "HERTZ", "EDMR", 60.98d, CarResult.FuelPolicy.FULLFULL);
+        CarResult carResult2 = new CarResult("Peugeot2 107", "HERTZ", "EDMR", 61.98d, CarResult.FuelPolicy.FULLFULL);
+        CarResult carResult3 = new CarResult("Peugeot3 107", "HERTZ", "EDMR", 67.98d, CarResult.FuelPolicy.FULLFULL);
+        Set set =   new LinkedHashSet();
+        set.add(carResult1);
+        set.add(carResult);
+        set.add(carResult2);
+        set.add(carResult3);
+        SortingService service = new SortingServiceImpl();
+        Set<CarResult> results = service.sort(set);
+        Assertions.assertEquals(results.size(), 2);
+    }
 
 
 }
