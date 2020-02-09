@@ -334,9 +334,9 @@ public class AssessmentRunner {
     public static void main(String[] args) {
         long start = System.currentTimeMillis();
         Display display = new Display();
-        SortingService service = new SortingServiceImpl();
+        //SortingService service = new SortingServiceImpl();
         //SortingService service = new SimpleSortingServiceImpl();//new SortingService2Impl();
-       // SortingService service = new SortingService2Impl();
+        SortingService service = new SortingService2Impl();
         Set<CarResult> sortedCarResults = service.sort(CARS);
       //  display.render(sortedCarResults);
         long end = System.currentTimeMillis();

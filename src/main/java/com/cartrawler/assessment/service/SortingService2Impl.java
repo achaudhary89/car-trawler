@@ -5,7 +5,9 @@ import com.cartrawler.assessment.comparator.PriceComparator;
 import com.cartrawler.assessment.constants.CarGroupEnum;
 import com.cartrawler.assessment.constants.SupplierTypeEnum;
 import com.cartrawler.assessment.utility.CarTrawlerUtility;
+import com.cartrawler.assessment.utility.MedianFinder;
 
+import javax.print.attribute.standard.Media;
 import java.util.*;
 
 public class SortingService2Impl implements SortingService {
@@ -18,9 +20,12 @@ public class SortingService2Impl implements SortingService {
 
     private Set<CarResult> results = null;
 
+    private Map<CarGroupEnum,MedianFinder> medianFinderMap = null;
+
     public SortingService2Impl() {
         this.carResultsMap = new HashMap<>();
         this.results = new LinkedHashSet<>();
+        this.medianFinderMap = new HashMap<>();
     }
 
     @Override
@@ -48,6 +53,9 @@ public class SortingService2Impl implements SortingService {
         Map<CarGroupEnum, Queue<CarResult>> map =   carResultsMap.getOrDefault(supplierTypeEnum, new HashMap<CarGroupEnum, Queue<CarResult>>());
         Queue<CarResult> queue = map.getOrDefault(carResult.getCarGroupEnum(),new PriorityQueue<CarResult>(PriceComparator.getPriceComparator()));
         queue.add(carResult);
+        MedianFinder medianFinder = medianFinderMap.getOrDefault(carResult.getCarGroupEnum(), new MedianFinder());
+        medianFinder.addNum(carResult.getRentalCost());
+        medianFinderMap.put(carResult.getCarGroupEnum(), medianFinder);
         map.put(carResult.getCarGroupEnum(),queue);
         carResultsMap.put(supplierTypeEnum,map);
     }
@@ -55,11 +63,11 @@ public class SortingService2Impl implements SortingService {
     private void populateResultSet(Map<CarGroupEnum, Queue<CarResult>> map){
         for(CarGroupEnum carGroup : CarGroupEnum.values()){
             Queue<CarResult> groupWiseQueue   =   map.get(carGroup);
-           /* double median = CarTrawlerUtility.findMedianOfSortedArray(groupWiseQueue);
-            groupWiseList.removeIf(e->e.getRentalCost() > median);*/
+            double median = medianFinderMap.get(carGroup).findMedian();
+            //System.out.println("For Group::"+carGroup.toString()+"  median is::"+median);
+            groupWiseQueue.removeIf(e->e.getRentalCost() > median);
             results.addAll(groupWiseQueue);
         }
-        long end = System.currentTimeMillis();
     }
 
 }
