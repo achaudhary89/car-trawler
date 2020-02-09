@@ -1,4 +1,4 @@
-package com.cartrawler.assessment.constants;
+package com.cartrawler.assessment.enums;
 
 import java.util.EnumSet;
 

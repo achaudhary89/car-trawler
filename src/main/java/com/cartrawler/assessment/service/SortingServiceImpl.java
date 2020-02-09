@@ -1,65 +1,71 @@
 package com.cartrawler.assessment.service;
 
 import com.cartrawler.assessment.car.CarResult;
-import com.cartrawler.assessment.constants.CarGroupEnum;
-import com.cartrawler.assessment.constants.CarSuppliersEnum;
-import com.cartrawler.assessment.utility.CarTrawlerUtility;
-import com.cartrawler.assessment.worker.SIPPCodeSortingWorker;
+import com.cartrawler.assessment.comparator.PriceComparator;
+import com.cartrawler.assessment.enums.CarGroupEnum;
+import com.cartrawler.assessment.enums.SupplierTypeEnum;
+import com.cartrawler.assessment.utility.MedianFinder;
 
-import javax.xml.transform.Result;
-import java.sql.ResultSet;
+import javax.print.attribute.standard.Media;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class SortingServiceImpl implements SortingService {
 
+    private Map<SupplierTypeEnum, Map<CarGroupEnum, List<CarResult>>> carResultsMap = null;
+
+    private Set<CarResult> results = null;
+
+    private MedianFinder medianFinder = null;
+
+
+    public SortingServiceImpl() {
+        this.carResultsMap = new HashMap<>();
+        this.results = new LinkedHashSet<>();
+        this.medianFinder = new MedianFinder();
+    }
+
     @Override
     public Set<CarResult> sort(Set<CarResult> carResults) {
-        List<CarResult> corporateCars = new ArrayList<>();
-        List<CarResult> nonCorporateCars = new ArrayList<>();
-        Set<CarResult> sortedResults = new LinkedHashSet<>();
-        for (CarResult carResult : carResults) {
-            if (CarSuppliersEnum.CAR_SUPPLIERS_ENUMS.contains(CarSuppliersEnum.valueOf(carResult.getSupplierName()))) {
-                corporateCars.add(carResult);
-            } else {
-                nonCorporateCars.add(carResult);
-            }
+        for(CarResult carResult : carResults){
+                buildCarResultMap(carResult);
         }
-
-        SIPPCodeSortingWorker corporateCarSortingWorker = new SIPPCodeSortingWorker(corporateCars);
-        SIPPCodeSortingWorker nonCorporateCarSortingWorker = new SIPPCodeSortingWorker(nonCorporateCars);
-        ExecutorService service = Executors.newFixedThreadPool(2);
-        Future<List<Future>> sortedCorporateCarsFuture = service.submit(corporateCarSortingWorker);
-        Future<List<Future>> sortedNonCorporateCarsFuture = service.submit(nonCorporateCarSortingWorker);
-        populateDataFromFuture(sortedCorporateCarsFuture,sortedResults);
-        populateDataFromFuture(sortedNonCorporateCarsFuture,sortedResults);
-        CarTrawlerUtility.shutDownExecutorService(service);
-        return sortedResults;
+        populateResultSet(carResultsMap.get(SupplierTypeEnum.COPORATE));
+        populateResultSet(carResultsMap.get(SupplierTypeEnum.NON_CORPORATE));
+        return results;
     }
 
-    private Set<CarResult> populateDataFromFuture(Future<List<Future>> future, Set<CarResult> sortedResults){
-        try {
-            List<Future> futureList    =   future.get();
-            for(Future future1 : futureList){
-                Map<CarGroupEnum, List<CarResult>> carGroupEnumListMap = (Map<CarGroupEnum, List<CarResult>>) future1.get();
-
-                for(CarGroupEnum carGroupEnum : CarGroupEnum.values()){
-                    if(carGroupEnumListMap.containsKey(carGroupEnum)){
-                        List<CarResult> carResultList   =   carGroupEnumListMap.get(carGroupEnum);
-                        double median = CarTrawlerUtility.findMedianOfSortedArray(carResultList);
-                        carResultList.removeIf(e->e.getRentalCost() > median);
-                        sortedResults.addAll(carGroupEnumListMap.get(carGroupEnum));
-                    }
-                }
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+    private void buildCarResultMap(CarResult carResult) {
+        if(carResult.isCorporate()){
+            populateCarResultMap(carResult, SupplierTypeEnum.COPORATE);
+        }else{
+            populateCarResultMap(carResult, SupplierTypeEnum.NON_CORPORATE);
         }
-        return sortedResults;
+
     }
+
+
+
+    private void populateCarResultMap(CarResult carResult, SupplierTypeEnum supplierTypeEnum){
+        Map<CarGroupEnum, List<CarResult>> map =   carResultsMap.getOrDefault(supplierTypeEnum, new HashMap<CarGroupEnum, List<CarResult>>());
+        List<CarResult> list = map.getOrDefault(carResult.getCarGroupEnum(),new ArrayList<CarResult>());
+        list.add(carResult);
+        map.put(carResult.getCarGroupEnum(),list);
+        carResultsMap.put(supplierTypeEnum,map);
+    }
+
+    private void populateResultSet(Map<CarGroupEnum, List<CarResult>> map){
+        if(map == null){
+            return;
+        }
+        for(CarGroupEnum carGroup : CarGroupEnum.values()){
+            List<CarResult> groupWiseList   =   map.get(carGroup);
+            if(groupWiseList != null) {
+                Collections.sort(groupWiseList, PriceComparator.getPriceComparator());
+                double median = medianFinder.findMedianOfSortedArray(groupWiseList);
+                groupWiseList.removeIf(e -> e.getRentalCost() > median);
+                results.addAll(groupWiseList);
+            }
+        }
+    }
+
 }

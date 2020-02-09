@@ -1,7 +1,7 @@
 package com.cartrawler.assessment.car;
 
-import com.cartrawler.assessment.constants.CarGroupEnum;
-import com.cartrawler.assessment.constants.CarSuppliersEnum;
+import com.cartrawler.assessment.enums.CarGroupEnum;
+import com.cartrawler.assessment.enums.CarSuppliersEnum;
 
 import java.util.Objects;
 

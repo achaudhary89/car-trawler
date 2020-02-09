@@ -2,7 +2,7 @@
 package com.cartrawler.assessment.comparator;
 
 import com.cartrawler.assessment.car.CarResult;
-import com.cartrawler.assessment.constants.CarGroupEnum;
+import com.cartrawler.assessment.enums.CarGroupEnum;
 
 import java.util.Comparator;
 
