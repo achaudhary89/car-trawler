@@ -4,7 +4,9 @@ import com.cartrawler.assessment.comparator.SIPPCodeComparator;
 import com.cartrawler.assessment.constants.CarGroupEnum;
 import com.cartrawler.assessment.constants.CarSuppliersEnum;
 import com.cartrawler.assessment.car.CarResult;
+import com.cartrawler.assessment.service.SimpleSortingServiceImpl;
 import com.cartrawler.assessment.service.SortingService;
+import com.cartrawler.assessment.service.SortingService2Impl;
 import com.cartrawler.assessment.service.SortingServiceImpl;
 import com.cartrawler.assessment.view.Display;
 import com.cartrawler.assessment.worker.SIPPCodeSortingWorker;
@@ -330,9 +332,14 @@ public class AssessmentRunner {
 
 
     public static void main(String[] args) {
+        long start = System.currentTimeMillis();
         Display display = new Display();
         SortingService service = new SortingServiceImpl();
+        //SortingService service = new SimpleSortingServiceImpl();//new SortingService2Impl();
+       // SortingService service = new SortingService2Impl();
         Set<CarResult> sortedCarResults = service.sort(CARS);
-        display.render(sortedCarResults);
+      //  display.render(sortedCarResults);
+        long end = System.currentTimeMillis();
+        System.out.println(end-start);
     }
 }

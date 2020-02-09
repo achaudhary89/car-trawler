@@ -1,6 +1,7 @@
 package com.cartrawler.assessment.car;
 
 import com.cartrawler.assessment.constants.CarGroupEnum;
+import com.cartrawler.assessment.constants.CarSuppliersEnum;
 
 import java.util.Objects;
 
@@ -10,6 +11,7 @@ public class CarResult {
     private final String sippCode;
     private final double rentalCost;
     private final FuelPolicy fuelPolicy;
+    private final  Boolean isCorporate;
 
 	public enum FuelPolicy {
         FULLFULL,
@@ -21,6 +23,7 @@ public class CarResult {
         this.sippCode = sipp;
         this.rentalCost = cost;
         this.fuelPolicy = fuelPolicy;
+        this.isCorporate = CarSuppliersEnum.CAR_SUPPLIERS_ENUMS.contains(CarSuppliersEnum.valueOf(this.getSupplierName()));
     }
     
     public String getDescription() {
@@ -41,6 +44,10 @@ public class CarResult {
     
     public FuelPolicy getFuelPolicy() {
         return this.fuelPolicy;
+    }
+
+    public Boolean isCorporate(){
+        return this.isCorporate;
     }
     
     public String toString() {
